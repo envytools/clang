@@ -7006,6 +7006,87 @@ public:
   }
 };
 
+// XXX
+class FalconTargetInfo : public TargetInfo {
+  static const Builtin::Info BuiltinInfo[];
+  static const char *const GCCRegNames[];
+
+public:
+  FalconTargetInfo(const llvm::Triple &Triple, const TargetOptions &)
+      : TargetInfo(Triple) {
+    RegParmMax = 6;
+    BigEndian = false;
+    resetDataLayout("e-m:e-p:32:32-i32:32-n8:16:32-S32");
+    TLSSupported = false;
+  }
+  void getTargetDefines(const LangOptions &Opts,
+                        MacroBuilder &Builder) const override {
+    DefineStd(Builder, "falcon", Opts);
+    // XXX define falcon0/3/4/5
+  }
+  bool hasFeature(StringRef Feature) const override {
+    // XXX
+    return llvm::StringSwitch<bool>(Feature)
+        .Case("falcon", true)
+        .Case("falcon3p", true)
+        .Case("crypt", true)
+        .Default(false);
+  }
+
+  bool
+  initFeatureMap(llvm::StringMap<bool> &Features, DiagnosticsEngine &Diags,
+                 StringRef CPU,
+                 const std::vector<std::string> &FeaturesVec) const override {
+    // XXX
+    Features["falcon3p"] = true;
+    Features["crypt"] = true;
+
+    return TargetInfo::initFeatureMap(Features, Diags, CPU, FeaturesVec);
+  }
+
+  ArrayRef<Builtin::Info> getTargetBuiltins() const override {
+    return llvm::makeArrayRef(BuiltinInfo,
+                         clang::Falcon::LastTSBuiltin-Builtin::FirstTSBuiltin);
+  }
+  ArrayRef<const char *> getGCCRegNames() const override;
+  const char *getClobbers() const override {
+    return "";
+  }
+  BuiltinVaListKind getBuiltinVaListKind() const override {
+    return TargetInfo::VoidPtrBuiltinVaList;
+  }
+  bool validateAsmConstraint(const char *&Name,
+                             TargetInfo::ConstraintInfo &info) const override {
+    return true;
+  }
+  ArrayRef<TargetInfo::GCCRegAlias> getGCCRegAliases() const override {
+    return None;
+  }
+};
+
+const char *const FalconTargetInfo::GCCRegNames[] = {
+    "r0", "r1", "r2",  "r3",  "r4",  "r5",  "r6",  "r7",
+    "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15",
+    "iv0", "iv1", "tv", "xdbase", "xcbase", "pc", "sp",
+    "xports", "cx", "cauth", "flags", "tstat",
+    "p0", "p1", "p2",  "p3",  "p4",  "p5",  "p6",  "p7",
+    "ccc", "cco", "ccs", "ccz", "ie0", "ie1", "sie0",
+    "sie1", "ta",
+};
+
+ArrayRef<const char *> FalconTargetInfo::getGCCRegNames() const {
+  return llvm::makeArrayRef(GCCRegNames);
+}
+
+
+const Builtin::Info FalconTargetInfo::BuiltinInfo[] = {
+#define BUILTIN(ID, TYPE, ATTRS)                                               \
+  { #ID, TYPE, ATTRS, nullptr, ALL_LANGUAGES, nullptr },
+#define TARGET_BUILTIN(ID, TYPE, ATTRS, FEATURE)                               \
+  { #ID, TYPE, ATTRS, nullptr, ALL_LANGUAGES, FEATURE },
+#include "clang/Basic/BuiltinsFalcon.def"
+};
+
 class MipsTargetInfo : public TargetInfo {
   void setDataLayout() {
     if (BigEndian) {
@@ -7028,7 +7109,6 @@ class MipsTargetInfo : public TargetInfo {
         llvm_unreachable("Invalid ABI");
     }
   }
-
 
   static const Builtin::Info BuiltinInfo[];
   std::string CPU;
@@ -8058,6 +8138,9 @@ static TargetInfo *AllocateTarget(const llvm::Triple &Triple,
   case llvm::Triple::bpfeb:
   case llvm::Triple::bpfel:
     return new BPFTargetInfo(Triple, Opts);
+
+  case llvm::Triple::falcon:
+    return new FalconTargetInfo(Triple, Opts);
 
   case llvm::Triple::msp430:
     return new MSP430TargetInfo(Triple, Opts);

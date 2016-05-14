@@ -1,0 +1,42 @@
+//===--- BuiltinsFalcon.def - Falcon Builtin function database --*- C++ -*-===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+//
+// This file defines the Falcon-specific builtin function database.  Users of
+// this file must define the BUILTIN macro to make use of this information.
+//
+//===----------------------------------------------------------------------===//
+
+// The format of this database matches clang/Basic/Builtins.def.
+
+#if defined(BUILTIN) && !defined(TARGET_BUILTIN)
+#   define TARGET_BUILTIN(ID, TYPE, ATTRS, FEATURE) BUILTIN(ID, TYPE, ATTRS)
+#endif
+
+TARGET_BUILTIN(__falcon_hlt, "v", "nr", "")
+
+TARGET_BUILTIN(__falcon_iord, "ii", "n", "")
+TARGET_BUILTIN(__falcon_iordb, "ii", "n", "falcon3p")
+TARGET_BUILTIN(__falcon_iowr, "vii", "n", "")
+TARGET_BUILTIN(__falcon_iowrb, "vii", "n", "falcon3p")
+
+TARGET_BUILTIN(__falcon_xdwait, "v", "n", "")
+TARGET_BUILTIN(__falcon_xcwait, "v", "n", "")
+TARGET_BUILTIN(__falcon_xdbar, "v", "n", "")
+// XXX: should involve pointer types?
+// XXX: model the xdbase/xcbase/xports sources too
+TARGET_BUILTIN(__falcon_xcld, "vii", "n", "")
+TARGET_BUILTIN(__falcon_xdld, "vii", "n", "")
+TARGET_BUILTIN(__falcon_xdst, "vii", "n", "")
+
+TARGET_BUILTIN(__falcon_itlb, "vi", "n", "falcon3p")
+TARGET_BUILTIN(__falcon_ptlb, "ii", "n", "falcon3p")
+TARGET_BUILTIN(__falcon_vtlb, "ii", "n", "falcon3p")
+
+// XXX: model the two args separately?
+TARGET_BUILTIN(__falcon_cc, "vIii", "n", "crypt")
