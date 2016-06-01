@@ -2939,6 +2939,16 @@ const StringRef HexagonToolChain::GetTargetCPUVersion(const ArgList &Args) {
 }
 // End Hexagon
 
+/// Falcon Toolchain
+FalconToolChain::FalconToolChain(const Driver &D, const llvm::Triple &Triple,
+                                 const ArgList &Args)
+  : Generic_ELF(D, Triple, Args) { }
+
+Tool *FalconToolChain::buildLinker() const {
+  return new tools::falcon::Linker(*this);
+}
+// End Falcon
+
 /// AMDGPU Toolchain
 AMDGPUToolChain::AMDGPUToolChain(const Driver &D, const llvm::Triple &Triple,
                                  const ArgList &Args)

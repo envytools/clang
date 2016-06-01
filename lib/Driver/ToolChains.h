@@ -946,6 +946,17 @@ public:
   bool IsIntegratedAssemblerDefault() const override { return true; }
 };
 
+class LLVM_LIBRARY_VISIBILITY FalconToolChain : public Generic_ELF {
+protected:
+  Tool *buildLinker() const override;
+
+public:
+  bool HasNativeLLVMSupport() const override { return true; }
+  FalconToolChain(const Driver &D, const llvm::Triple &Triple,
+            const llvm::opt::ArgList &Args);
+  bool IsIntegratedAssemblerDefault() const override { return true; }
+};
+
 class LLVM_LIBRARY_VISIBILITY NaClToolChain : public Generic_ELF {
 public:
   NaClToolChain(const Driver &D, const llvm::Triple &Triple,

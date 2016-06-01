@@ -2519,6 +2519,9 @@ const ToolChain &Driver::getToolChain(const ArgList &Args,
       case llvm::Triple::tce:
         TC = new toolchains::TCEToolChain(*this, Target, Args);
         break;
+      case llvm::Triple::falcon:
+        TC = new toolchains::FalconToolChain(*this, Target, Args);
+        break;
       case llvm::Triple::hexagon:
         TC = new toolchains::HexagonToolChain(*this, Target, Args);
         break;
